@@ -50,7 +50,10 @@ aya-log = "0.12"
 aya-obj = "0.12"
 
 # Nix
-nix = "0.5"
+nix = { version = "0.27", features = ["systemd", "net", "process", "user"] }
+
+# Linux-specific
+libc = "0.2"
 
 # Sandbox / Virtualization
 tokio-process = "0.2"
@@ -120,7 +123,3 @@ strip = "debuginfo"
 [profile.ci]
 inherits = "release"
 debug = true
-
-[target.'cfg(target_os = "linux")'.dependencies]
-libc = "0.2"
-nix = { version = "0.27", features = ["systemd", "net", "process", "user"] }
