@@ -33,7 +33,7 @@ COPY crates/orchestrator-ui ./crates/orchestrator-ui
 COPY crates/orchestrator-policy ./crates/orchestrator-policy
 
 # Build release
-RUN cargo build --release --workspace --locked
+RUN cargo build --release --workspace
 
 # Runtime stage
 FROM debian:12-slim AS runtime

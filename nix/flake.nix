@@ -1,21 +1,20 @@
 {
   description = "AI-Native OS - Self-modifying, federated, minimal";
-  
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
     # Optional private flake for secrets and host-specific configs
     # private = {
     #   url = "git+ssh://git@github.com/your-org/ai-native-os-private";
     #   flake = false;
     # };
   };
-  
-  outputs = { self, nixpkgs, nixos-hardware, ... }:
+
+  outputs = { self, nixpkgs, ... }:
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
-      
+
       # Common modules
       commonModules = [
         ./modules/kernel.nix
@@ -41,7 +40,7 @@
           modules = commonModules ++ [ hostConfig ];
         }
       );
-      
+
       # Development shell
       devShells = forAllSystems (system:
         let pkgs = import nixpkgs { inherit system; config = { allowUnfree = true; }; };
@@ -71,7 +70,7 @@
           '';
         }
       );
-      
+
       # Packages
       packages = forAllSystems (system:
         let pkgs = import nixpkgs { inherit system; config = { allowUnfree = true; }; };
@@ -79,13 +78,13 @@
           orchestrator = pkgs.callPackage ./packages/orchestrator { };
         }
       );
-      
+
       # Host configurations as explicit outputs
       nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = commonModules ++ [ ./hosts/laptop.nix ];
       };
-      
+
       nixosConfigurations.phone = nixpkgs.lib.nixosSystem {
         system = "aarch64-linux";
         modules = commonModules ++ [ ./hosts/phone.nix ];

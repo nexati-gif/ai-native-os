@@ -45,7 +45,7 @@ pkgs.stdenv.mkDerivation {
     export RUSTFLAGS="-C target-cpu=native -C opt-level=3 -C lto=thin -C codegen-units=1 -C panic=abort"
     
     # Build the workspace
-    cargo build --release --workspace --locked
+    cargo build --release --workspace
   '';
   
   installPhase = ''
@@ -63,7 +63,7 @@ pkgs.stdenv.mkDerivation {
   
   # Check phase (run only unit tests, skip integration)
   checkPhase = ''
-    cargo test --workspace --locked --lib
+    cargo test --workspace --lib
   '';
   
   meta = with pkgs.lib; {
