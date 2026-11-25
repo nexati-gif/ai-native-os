@@ -65,7 +65,7 @@ An operating system that **learns from your usage patterns**, **proposes optimiz
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/ai-native-os.git
+git clone https://github.com/nexati-gif/ai-native-os.git
 cd ai-native-os
 
 # Bootstrap (run as root on NixOS)

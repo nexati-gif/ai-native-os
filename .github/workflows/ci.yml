@@ -52,24 +52,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             clang \
-            llvm-17 \
-            libclang-17-dev \
+            llvm \
+            libclang-dev \
             libbpf-dev \
             linux-headers-$(uname -r) \
-            linux-tools-$(uname -r) \
-            linux-tools-common \
             pkg-config \
             libssl-dev \
             libgit2-dev \
             protobuf-compiler \
             cmake \
+            qemu-system-x86 \
             qemu-kvm \
             libvirt-daemon-system \
             libvirt-clients \
             bridge-utils \
             virtinst \
             python3-pytest \
-            python3-hypothesis
+            python3-hypothesis \
+            libelf-dev
 
       - name: Format check
         run: cargo fmt --all -- --check
@@ -132,11 +132,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            clang-17 \
-            llvm-17 \
+            clang \
+            llvm \
             libbpf-dev \
             linux-headers-$(uname -r) \
-            linux-tools-$(uname -r) \
             bpftool
 
       - name: Build eBPF programs
@@ -207,7 +206,7 @@ jobs:
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
-          ignore-urls: "https://github.com/your-org/*,git@github.com:*"
+          ignore-urls: "http://localhost:*,https://github.com/nexati-gif/ai-native-os/*,git@github.com:*"
 
       - name: Check README exists
         run: test -f README.md

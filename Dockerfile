@@ -6,9 +6,9 @@ FROM rust:1.78-bookworm AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    clang-17 \
-    llvm-17 \
-    libclang-17-dev \
+    clang \
+    llvm \
+    libclang-dev \
     libbpf-dev \
     linux-headers-generic \
     pkg-config \
