@@ -1,0 +1,34 @@
+[package]
+name = "orchestrator-core"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Core orchestrator loop and state machine"
+
+[[bin]]
+name = "orchestrator"
+path = "src/main.rs"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+orchestrator-observe = { path = "../orchestrator-observe", workspace = true }
+orchestrator-plan = { path = "../orchestrator-plan", workspace = true }
+orchestrator-act = { path = "../orchestrator-act", workspace = true }
+orchestrator-validate = { path = "../orchestrator-validate", workspace = true }
+orchestrator-federate = { path = "../orchestrator-federate", workspace = true }
+orchestrator-ui = { path = "../orchestrator-ui", workspace = true }
+orchestrator-policy = { path = "../orchestrator-policy", workspace = true }
+
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+async-trait = { workspace = true }
+crossbeam = { workspace = true }
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+clap = { workspace = true }
+config = { workspace = true }
+redb = { workspace = true }

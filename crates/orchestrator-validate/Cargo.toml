@@ -1,0 +1,18 @@
+[package]
+name = "orchestrator-validate"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Validator: statistical validation of proposals"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+statrs = { workspace = true }
+rand = { workspace = true }

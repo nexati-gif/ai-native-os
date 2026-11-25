@@ -1,0 +1,19 @@
+[package]
+name = "orchestrator-federate"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Federation: cross-device sync via Tailscale + Automerge + Git"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+automerge = { workspace = true }
+git2 = { workspace = true }
+tailscale = { workspace = true }

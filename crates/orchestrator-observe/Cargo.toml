@@ -1,0 +1,25 @@
+[package]
+name = "orchestrator-observe"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Passive observation collectors (eBPF, perf, OTel)"
+build = "build.rs"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+async-trait = { workspace = true }
+crossbeam = { workspace = true }
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+aya = { workspace = true }
+aya-log = { workspace = true }
+nix = { workspace = true }
+libc = { workspace = true }
+hostname = "0.3"

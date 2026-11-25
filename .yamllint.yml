@@ -1,0 +1,36 @@
+# Yamllint configuration for AI-Native OS Orchestrator
+
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  document-start:
+    present: false
+  truthy:
+    allowed-values: ["true", "false", "yes", "no"]
+  comments:
+    require-starting-space: false
+  comments-indentation:
+    level: warning
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+  indentation:
+    spaces: 2
+    indent-sequences: whatever
+  key-duplicates:
+    level: error
+  braces:
+    max-spaces-inside: 1
+    min-spaces-inside: 0
+  brackets:
+    max-spaces-inside: 1
+    min-spaces-inside: 0
+  colons:
+    max-spaces-before: 0
+    max-spaces-after: 1
+  hyphens:
+    max-spaces-after: 1

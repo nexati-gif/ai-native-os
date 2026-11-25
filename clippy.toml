@@ -1,0 +1,68 @@
+# Clippy configuration for AI-Native OS Orchestrator
+
+# Lints to allow
+allow = [
+    # Allow uninlined format args for logging
+    "uninlined_format_args",
+    # Allow module_inception for our crate structure
+    "module_inception",
+    # Allow too_many_arguments for complex builder patterns
+    "too_many_arguments",
+    # Allow type_complexity for complex generic types
+    "type_complexity",
+    # Allow large_enum_variant for our event types
+    "large_enum_variant",
+    # Allow enum_variant_names for clarity
+    "enum_variant_names",
+    # Allow needless_pass_by_value for small types
+    "needless_pass_by_value",
+    # Allow redundant_closure for clarity
+    "redundant_closure",
+    # Allow should_implement_trait for newtype patterns
+    "should_implement_trait",
+    # Allow missing_docs_in_private_items
+    "missing_docs_in_private_items",
+]
+
+# Lints to warn
+warn = [
+    "unused_import_braces",
+    "unused_qualifications",
+    "trivially_copy_pass_by_ref",
+    "manual_map",
+    "manual_filter",
+    "manual_find",
+    "manual_ok_or",
+    "option_map_unwrap_or",
+    "option_map_unwrap_or_else",
+    "result_map_unwrap_or_else",
+    "unnecessary_unwrap",
+    "unwrap_used",
+    "expect_used",
+    "panic",
+    "todo",
+    "unimplemented",
+    "missing_docs",
+    "missing_debug_implementations",
+    "missing_copy_implementations",
+]
+
+# Lints to deny
+deny = [
+    "unsafe_code",
+    "unreachable_pub",
+    "pub_use_of_private_extern_crate",
+]
+
+# Per-crate configuration
+[crates.orchestrator-core]
+# Core orchestrator needs some unsafe for signal handling
+allow = ["unsafe_code"]
+
+[crates.orchestrator-observe]
+# eBPF code needs unsafe
+allow = ["unsafe_code", "non_snake_case", "non_upper_case_globals"]
+
+[crates.orchestrator-act]
+# Sandbox interaction may need unsafe
+allow = ["unsafe_code"]

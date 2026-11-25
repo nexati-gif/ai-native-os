@@ -1,0 +1,81 @@
+# AI-Native OS Orchestrator Configuration
+# Copy to /etc/orchestrator/config.toml and customize
+
+device_id = "my-laptop"
+model_path = "/var/lib/orchestrator/models/qwen2.5-coder-32b-4bit.gguf"
+rag_path = "/var/lib/orchestrator/rag"
+lora_path = "/var/lib/orchestrator/lora"
+state_db_path = "/var/lib/orchestrator/state.redb"
+idle_timeout_secs = 30
+
+# Passive observation (always running, minimal resources)
+passive_mode = { 
+  enabled = true, 
+  poll_interval_ms = 100, 
+  events_buffer_size = 10000, 
+  persist_interval_secs = 60, 
+  collectors = [
+    { name = "scheduler", enabled = true, config = {} },
+    { name = "network", enabled = true, config = {} },
+    { name = "block", enabled = true, config = {} },
+    { name = "memory", enabled = true, config = {} },
+  ]
+}
+
+# Active cycles (triggered by user, anomaly, schedule)
+active_mode = { 
+  max_concurrent_cycles = 1, 
+  proposal_timeout_secs = 300, 
+  sandbox_timeout_secs = 600, 
+  validation_timeout_secs = 300, 
+  auto_promote_on_success = false 
+}
+
+# Cross-device federation
+federation = { 
+  enabled = true, 
+  tailscale_auth_key = null,  # Set via environment or config
+  sync_interval_secs = 300, 
+  automerge_doc_path = "/var/lib/orchestrator/federation.automerge", 
+  git_remote = null,  # e.g., "git@github.com:user/ai-native-os-federation.git"
+  git_branch = "main" 
+}
+
+# UI configuration
+ui = { 
+  mode = "Both",  # Tui, Web, or Both
+  tui_enabled = true, 
+  web_enabled = true, 
+  web_port = 8080, 
+  web_bind = "127.0.0.1", 
+  auth_token = null  # Set for web UI auth
+}
+
+# Policy engine
+policy = { 
+  engine = "OpaRego",  # OpaRego or Custom
+  policies_dir = "/etc/orchestrator/policies", 
+  default_deny = true 
+}
+
+# Sandbox for testing proposals
+sandbox = { 
+  backend = "Firecracker",  # Firecracker, Qemu, or Both
+  firecracker = { 
+    vcpus = 2, 
+    memory_mib = 512, 
+    kernel_path = "/run/current-system/kernel", 
+    initrd_path = "/run/current-system/initrd", 
+    rootfs_path = "/var/lib/orchestrator/rootfs.ext4", 
+    boot_args = "console=ttyS0 reboot=k panic=1 pci=off nomodules" 
+  }, 
+  qemu = { 
+    vcpus = 2, 
+    memory_mib = 1024, 
+    kernel_path = "/run/current-system/kernel", 
+    initrd_path = "/run/current-system/initrd", 
+    disk_path = "/var/lib/orchestrator/disk.qcow2", 
+    enable_kvm = true 
+  }, 
+  warm_pool_size = 0  # Set >0 to keep pre-warmed microVMs
+}

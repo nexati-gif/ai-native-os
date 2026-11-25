@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Native OS Orchestrator</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-secondary: #161b22;
+            --fg: #e6edf3;
+            --fg-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79b8ff;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+            --border: #30363d;
+            --card-bg: #161b22;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 { 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-running { background: rgba(63, 185, 80, 0.15); color: var(--success); }
+        .status-idle { background: rgba(210, 153, 34, 0.15); color: var(--warning); }
+        .status-error { background: rgba(248, 81, 73, 0.15); color: var(--danger); }
+        
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        
+        .card h2 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--fg-muted);
+            margin: 0 0 1rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .metric:last-child { border-bottom: none; }
+        
+        .metric-label { color: var(--fg-muted); font-size: 0.875rem; }
+        .metric-value { font-weight: 600; font-family: "SF Mono", "Fira Code", monospace; }
+        .metric-value.positive { color: var(--success); }
+        .metric-value.negative { color: var(--danger); }
+        .metric-value.warning { color: var(--warning); }
+        
+        .proposal-card {
+            border-left: 4px solid var(--accent);
+            transition: all 0.2s;
+        }
+        
+        .proposal-card.risk-low { border-left-color: var(--success); }
+        .proposal-card.risk-medium { border-left-color: var(--warning); }
+        .proposal-card.risk-high { border-left-color: var(--danger); }
+        .proposal-card.risk-critical { border-left-color: var(--danger); border-left-width: 6px; }
+        
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .proposal-title { font-weight: 600; font-size: 1rem; }
+        .proposal-id { font-family: monospace; font-size: 0.75rem; color: var(--fg-muted); }
+        
+        .risk-tag {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .risk-low { background: rgba(63, 185, 80, 0.15); color: var(--success); }
+        .risk-medium { background: rgba(210, 153, 34, 0.15); color: var(--warning); }
+        .risk-high { background: rgba(248, 81, 73, 0.15); color: var(--danger); }
+        .risk-critical { background: var(--danger); color: white; }
+        
+        .proposal-rationale { color: var(--fg-muted); font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.5; }
+        
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .impact-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .impact-label { font-size: 0.625rem; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 0.25rem; }
+        .impact-value { font-weight: 600; font-family: monospace; }
+        
+        .diff-block {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: "SF Mono", "Fira Code", monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            max-height: 200px;
+            margin-bottom: 1rem;
+        }
+        
+        .diff-add { color: var(--success); }
+        .diff-remove { color: var(--danger); }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary { background: var(--accent); color: var(--bg); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #ff6b64; }
+        .btn-secondary { background: var(--border); color: var(--fg); }
+        .btn-secondary:hover { background: #3d444d; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--fg-muted);
+        }
+        
+        .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            color: var(--fg-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s;
+        }
+        
+        .tab:hover { color: var(--fg); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        
+        @media (max-width: 768px) {
+            .impact-grid { grid-template-columns: repeat(2, 1fr); }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" x-data="orchestratorApp()">
+        <header>
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
+                    <path d="M12 22V12"></path>
+                    <path d="M22 15.5L12 12"></path>
+                    <path d="M2 15.5L12 12"></path>
+                </svg>
+                AI-Native OS Orchestrator
+            </h1>
+            <div class="status-badge" :class="statusClass" x-show="status">
+                <span class="status-dot" style="animation: pulse 2s infinite;"></span>
+                <span x-text="status"></span>
+            </div>
+        </header>
+        
+        <style>
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+        </style>
+        
+        <!-- Main Grid -->
+        <div class="grid">
+            <!-- System Metrics -->
+            <div class="card">
+                <h2>System Metrics</h2>
+                <div class="metric">
+                    <span class="metric-label">CPU Usage</span>
+                    <span class="metric-value" :class="{ positive: cpu < 50, warning: cpu >= 50 && cpu < 80, negative: cpu >= 80 }" x-text="cpu + '%'"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Memory</span>
+                    <span class="metric-value" :class="{ positive: mem < 60, warning: mem >= 60 && mem < 85, negative: mem >= 85 }" x-text="mem + '%'"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Disk</span>
+                    <span class="metric-value" :class="{ positive: disk < 70, warning: disk >= 70 && disk < 90, negative: disk >= 90 }" x-text="disk + '%'"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Load Avg</span>
+                    <span class="metric-value" x-text="load"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime</span>
+                    <span class="metric-value" x-text="uptime"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Model Status</span>
+                    <span class="metric-value" :class="modelLoaded ? 'positive' : 'warning'" x-text="modelLoaded ? 'Loaded' : 'Unloaded'"></span>
+                </div>
+            </div>
+            
+            <!-- Orchestrator Stats -->
+            <div class="card">
+                <h2>Orchestrator Stats</h2>
+                <div class="metric">
+                    <span class="metric-label">Total Cycles</span>
+                    <span class="metric-value" x-text="totalCycles"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Successful</span>
+                    <span class="metric-value positive" x-text="successfulCycles"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Failed</span>
+                    <span class="metric-value negative" x-text="failedCycles"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Success Rate</span>
+                    <span class="metric-value" x-text="successRate + '%'"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Cycle</span>
+                    <span class="metric-value" x-text="lastCycle"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Loaded Components</span>
+                    <span class="metric-value" x-text="loadedComponents"></span>
+                </div>
+            </div>
+            
+            <!-- Active Proposal -->
+            <div class="card proposal-card" :class="'risk-' + (currentProposal?.risk_level?.toLowerCase() || 'low')" x-show="currentProposal">
+                <h2>Pending Approval</h2>
+                <div class="proposal-header">
+                    <div>
+                        <div class="proposal-title" x-text="currentProposal.description"></div>
+                        <div class="proposal-id" x-text="'ID: ' + currentProposal.id"></div>
+                    </div>
+                    <span class="risk-tag" :class="'risk-' + currentProposal.risk_level.toLowerCase()" x-text="currentProposal.risk_level"></span>
+                </div>
+                <p class="proposal-rationale" x-text="currentProposal.rationale"></p>
+                
+                <div class="impact-grid">
+                    <div class="impact-item">
+                        <div class="impact-label">Performance</div>
+                        <div class="impact-value" :class="{ positive: currentProposal.estimated_impact.performance_delta_pct >= 0, negative: currentProposal.estimated_impact.performance_delta_pct < 0 }" x-text="currentProposal.estimated_impact.performance_delta_pct.toFixed(1) + '%'"></div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-label">Memory</div>
+                        <div class="impact-value" :class="{ positive: currentProposal.estimated_impact.memory_delta_mib >= 0, negative: currentProposal.estimated_impact.memory_delta_mib < 0 }" x-text="currentProposal.estimated_impact.memory_delta_mib + ' MiB'"></div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-label">Latency</div>
+                        <div class="impact-value" :class="{ positive: currentProposal.estimated_impact.latency_delta_pct <= 0, negative: currentProposal.estimated_impact.latency_delta_pct > 0 }" x-text="currentProposal.estimated_impact.latency_delta_pct.toFixed(1) + '%'"></div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-label">Stability</div>
+                        <div class="impact-value" x-text="currentProposal.estimated_impact.stability_risk"></div>
+                    </div>
+                </div>
+                
+                <div class="diff-block" x-show="currentProposal.diff" x-html="highlightDiff(currentProposal.diff)"></div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" @click="approveProposal(true)" :disabled="approving">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Approve
+                    </button>
+                    <button class="btn btn-danger" @click="approveProposal(false)" :disabled="approving">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject
+                    </button>
+                    <button class="btn btn-secondary" @click="modifyProposal()" :disabled="approving">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Modify
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card empty-state" x-show="!currentProposal">
+                <div class="empty-icon">🤖</div>
+                <h3>No Pending Proposals</h3>
+                <p>The orchestrator is observing system metrics passively.<br>Trigger an optimization cycle to generate a proposal.</p>
+                <button class="btn btn-primary" @click="triggerCycle()" style="margin-top: 1rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Run Optimization
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tabs for History/Logs -->
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="tabs" role="tablist">
+                <button class="tab active" role="tab" @click="activeTab = 'history'" :class="{ active: activeTab === 'history' }">History</button>
+                <button class="tab" role="tab" @click="activeTab = 'federation'" :class="{ active: activeTab === 'federation' }">Federation</button>
+                <button class="tab" role="tab" @click="activeTab = 'logs'" :class="{ active: activeTab === 'logs' }">Logs</button>
+            </div>
+            
+            <div class="tab-panel active" x-show="activeTab === 'history'">
+                <h3 style="margin: 0 0 1rem;">Recent Proposals</h3>
+                <div class="empty-state" x-show="proposalHistory.length === 0">
+                    <div class="empty-icon">📋</div>
+                    <p>No proposals yet</p>
+                </div>
+                <div style="display: none;" x-show="proposalHistory.length > 0">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                                <th style="padding: 0.75rem; color: var(--fg-muted);">Time</th>
+                                <th style="padding: 0.75rem; color: var(--fg-muted);">Type</th>
+                                <th style="padding: 0.75rem; color: var(--fg-muted);">Description</th>
+                                <th style="padding: 0.75rem; color: var(--fg-muted);">Risk</th>
+                                <th style="padding: 0.75rem; color: var(--fg-muted);">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="p in proposalHistory" :key="p.id">
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--fg-muted);" x-text="formatTime(p.timestamp)"></td>
+                                    <td style="padding: 0.75rem;" x-text="p.kind"></td>
+                                    <td style="padding: 0.75rem;" x-text="p.description"></td>
+                                    <td style="padding: 0.75rem;">
+                                        <span class="risk-tag" :class="'risk-' + p.risk_level.toLowerCase()" x-text="p.risk_level"></span>
+                                    </td>
+                                    <td style="padding: 0.75rem;">
+                                        <span class="risk-tag" :class="p.status === 'approved' ? 'risk-low' : (p.status === 'rejected' ? 'risk-high' : 'risk-medium')" x-text="p.status"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-panel" x-show="activeTab === 'federation'">
+                <h3 style="margin: 0 0 1rem;">Federation Status</h3>
+                <div class="metric">
+                    <span class="metric-label">Connected Peers</span>
+                    <span class="metric-value" x-text="peerCount"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Sync</span>
+                    <span class="metric-value" x-text="lastSync"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Synced Items</span>
+                    <span class="metric-value" x-text="syncedItems"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Pending Sync</span>
+                    <span class="metric-value warning" x-text="pendingSync"></span>
+                </div>
+            </div>
+            
+            <div class="tab-panel" x-show="activeTab === 'logs'">
+                <h3 style="margin: 0 0 1rem;">Recent Logs</h3>
+                <div style="font-family: monospace; font-size: 0.75rem; max-height: 300px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+                    <template x-for="log in recentLogs" :key="log.id">
+                        <div style="padding: 0.25rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem;">
+                            <span style="color: var(--fg-muted);" x-text="log.timestamp"></span>
+                            <span :class="log.level === 'ERROR' ? 'negative' : (log.level === 'WARN' ? 'warning' : '')" x-text="log.level"></span>
+                            <span style="color: var(--fg-muted);" x-text="log.target"></span>
+                            <span x-text="log.message"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function orchestratorApp() {
+            return {
+                // State
+                status: 'Running',
+                statusClass: 'status-running',
+                cpu: 12,
+                mem: 45,
+                disk: 38,
+                load: '0.45, 0.32, 0.28',
+                uptime: '3d 14h 22m',
+                modelLoaded: false,
+                totalCycles: 0,
+                successfulCycles: 0,
+                failedCycles: 0,
+                successRate: 0,
+                lastCycle: 'Never',
+                loadedComponents: 1,
+                currentProposal: null,
+                proposalHistory: [],
+                peerCount: 0,
+                lastSync: 'Never',
+                syncedItems: 0,
+                pendingSync: 0,
+                recentLogs: [],
+                activeTab: 'history',
+                approving: false,
+                
+                // Initialize
+                async init() {
+                    await this.fetchStatus();
+                    await this.fetchHistory();
+                    await this.fetchFederation();
+                    await this.fetchLogs();
+                    
+                    // Poll for updates
+                    setInterval(() => this.fetchStatus(), 5000);
+                    setInterval(() => this.fetchHistory(), 10000);
+                    setInterval(() => this.fetchFederation(), 30000);
+                    setInterval(() => this.fetchLogs(), 5000);
+                },
+                
+                // API calls
+                async fetchStatus() {
+                    try {
+                        const resp = await fetch('/api/status');
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            this.cpu = data.cpu;
+                            this.mem = data.memory;
+                            this.disk = data.disk;
+                            this.load = data.load;
+                            this.uptime = data.uptime;
+                            this.modelLoaded = data.model_loaded;
+                            this.totalCycles = data.total_cycles;
+                            this.successfulCycles = data.successful_cycles;
+                            this.failedCycles = data.failed_cycles;
+                            this.successRate = data.total_cycles > 0 ? 
+                                Math.round((data.successful_cycles / data.total_cycles) * 100) : 0;
+                            this.lastCycle = data.last_cycle ? this.formatTime(data.last_cycle) : 'Never';
+                            this.loadedComponents = data.loaded_components?.length || 0;
+                            
+                            if (data.current_proposal && !this.currentProposal) {
+                                this.currentProposal = data.current_proposal;
+                            } else if (!data.current_proposal) {
+                                this.currentProposal = null;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch status:', e);
+                    }
+                },
+                
+                async fetchHistory() {
+                    try {
+                        const resp = await fetch('/api/history');
+                        if (resp.ok) {
+                            this.proposalHistory = await resp.json();
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch history:', e);
+                    }
+                },
+                
+                async fetchFederation() {
+                    try {
+                        const resp = await fetch('/api/federation');
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            this.peerCount = data.peers?.length || 0;
+                            this.lastSync = data.last_sync ? this.formatTime(data.last_sync) : 'Never';
+                            this.syncedItems = data.synced_items || 0;
+                            this.pendingSync = data.pending_sync || 0;
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch federation:', e);
+                    }
+                },
+                
+                async fetchLogs() {
+                    try {
+                        const resp = await fetch('/api/logs?limit=50');
+                        if (resp.ok) {
+                            this.recentLogs = await resp.json();
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch logs:', e);
+                    }
+                },
+                
+                async triggerCycle() {
+                    try {
+                        await fetch('/api/trigger', { method: 'POST' });
+                        this.currentProposal = { description: 'Generating proposal...', rationale: 'Please wait while the planner analyzes the system.' };
+                    } catch (e) {
+                        console.error('Failed to trigger cycle:', e);
+                    }
+                },
+                
+                async approveProposal(approved) {
+                    if (!this.currentProposal) return;
+                    this.approving = true;
+                    try {
+                        await fetch('/api/proposal', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                proposal_id: this.currentProposal.id,
+                                approved: approved
+                            })
+                        });
+                        this.currentProposal = null;
+                        await this.fetchHistory();
+                    } catch (e) {
+                        console.error('Failed to approve:', e);
+                    } finally {
+                        this.approving = false;
+                    }
+                },
+                
+                modifyProposal() {
+                    alert('Proposal modification opens in editor (not implemented in demo)');
+                },
+                
+                formatTime(iso) {
+                    const date = new Date(iso);
+                    return date.toLocaleString();
+                },
+                
+                highlightDiff(diff) {
+                    if (!diff) return '';
+                    return diff.split('\n').map(line => {
+                        if (line.startsWith('+')) return `<span class="diff-add">${this.escapeHtml(line)}</span>`;
+                        if (line.startsWith('-')) return `<span class="diff-remove">${this.escapeHtml(line)}</span>`;
+                        return this.escapeHtml(line);
+                    }).join('<br>');
+                },
+                
+                escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
+            };
+        }
+        
+        // Initialize Alpine app
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('orchestratorApp', orchestratorApp);
+        });
+    </script>
+</body>
+</html>

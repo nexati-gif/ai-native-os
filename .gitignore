@@ -1,0 +1,80 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Nix
+.result*
+result*
+*.drv
+.nix-profile/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+journals/
+
+# Model weights (large files - use git-lfs or download script)
+/var/lib/orchestrator/models/*.gguf
+/var/lib/orchestrator/lora/
+/var/lib/orchestrator/rag/
+
+# State database
+/var/lib/orchestrator/state.redb
+/var/lib/orchestrator/federation.automerge
+
+# Federation git repo
+/etc/orchestrator/federation/.git/
+
+# Temporary files
+/tmp/fc-*.sock
+/tmp/fc-config-*.json
+/tmp/orchestrator-*
+
+# Build artifacts
+*.o
+*.so
+*.a
+*.ko
+*.ko.cmd
+*.mod.c
+Module.symvers
+modules.order
+
+# Coverage
+coverage/
+*.profraw
+*.profdata
+
+# Benchmarks
+benchmarks/
+
+# Secrets
+*.key
+*.pem
+*.crt
+.env
+.secrets/
+
+# Editor
+.direnv/
+
+# Unrelated directories (existing in workspace but not part of project)
+deepseek_data-2026-10-21/
+fabrica-de-formas/
+family-tasks-app/
+reverse_image_search/
+browser-screenshots/
+_preview*.png
+_tvapp_inline.js
+_tmp_v190.py

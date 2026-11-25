@@ -1,0 +1,89 @@
+# Cargo-deny configuration for AI-Native OS Orchestrator
+
+[advisories]
+# Path to the advisory database
+db-path = ""
+# Ignore specific advisories
+ignore = []
+# Severity levels to check
+severity = "all"
+# Allow yanked crates
+allow-yanked = false
+
+[licenses]
+# Allow these licenses
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MPL-2.0",
+    "Zlib",
+    "Unlicense",
+    "CC0-1.0",
+    "Apache-2.0 WITH LLVM-exception",
+]
+# Deny these licenses
+deny = [
+    "GPL-2.0",
+    "GPL-3.0",
+    "LGPL-2.0",
+    "LGPL-3.0",
+    "AGPL-3.0",
+]
+# Allow license exceptions
+allow-osi = true
+allow-fsf = true
+# Allow licenses with "OR" in their expression
+allow-or = true
+# Confidence threshold for license detection
+confidence-threshold = 0.8
+
+[bans]
+# Deny multiple versions of the same crate
+multiple-versions = "warn"
+# Highlight crates that have been yanked
+highlight-yanked = true
+# Deny specific crates/versions
+deny = []
+# Allow specific crates/versions
+allow = []
+# Skip specific crates from checks
+skip = []
+# Skip crates in the dev-dependencies
+skip-dev = false
+# Skip crates in the build-dependencies
+skip-build = false
+
+[sources]
+# Unknown registries
+unknown-registry = "deny"
+# Unknown git sources
+unknown-git = "deny"
+# Allow specific registries
+allow-registry = ["crates.io"]
+# Allow specific git sources
+allow-git = [
+    "https://github.com/tailscale/tailscale-go",
+]
+
+[metadata]
+# Check for missing README
+check-readme = true
+# Check for missing license
+check-license = true
+# Check for missing description
+check-description = true
+# Check for missing repository
+check-repository = true
+# Check for missing homepage
+check-homepage = false
+# Check for missing documentation
+check-documentation = true
+# Check for missing keywords
+check-keywords = true
+# Check for missing categories
+check-categories = true
+# Check for missing badges
+check-badges = true

@@ -1,0 +1,21 @@
+[package]
+name = "orchestrator-act"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Actor: executes proposals in sandbox (Nix, Firecracker, kexec)"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+tokio-process = { workspace = true }
+command-group = { workspace = true }
+nix = { workspace = true }
+tempfile = { workspace = true }

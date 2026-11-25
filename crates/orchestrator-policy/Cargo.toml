@@ -1,0 +1,17 @@
+[package]
+name = "orchestrator-policy"
+version = { workspace = true }
+edition = "2021"
+license = { workspace = true }
+repository = { workspace = true }
+description = "Policy engine using OPA/Rego"
+
+[dependencies]
+orchestrator-common = { path = "../common", workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+opa-wasm = { workspace = true }

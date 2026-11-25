@@ -1,0 +1,101 @@
+# Dependabot configuration for AI-Native OS Orchestrator
+
+version: 2
+updates:
+  # Rust dependencies (Cargo)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "rust"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    ignore:
+      # Ignore major version updates for core dependencies
+      - dependency-name: "tokio"
+        update-type: "version-update:semver-major"
+      - dependency-name: "tracing"
+        update-type: "version-update:semver-major"
+      - dependency-name: "serde"
+        update-type: "version-update:semver-major"
+      - dependency-name: "anyhow"
+        update-type: "version-update:semver-major"
+      - dependency-name: "candle-core"
+        update-type: "version-update:semver-major"
+      - dependency-name: "candle-nn"
+        update-type: "version-update:semver-major"
+      - dependency-name: "candle-transformers"
+        update-type: "version-update:semver-major"
+      - dependency-name: "qdrant-client"
+        update-type: "version-update:semver-major"
+      - dependency-name: "axum"
+        update-type: "version-update:semver-major"
+      - dependency-name: "ratatui"
+        update-type: "version-update:semver-major"
+      - dependency-name: "aya"
+        update-type: "version-update:semver-major"
+      - dependency-name: "redb"
+        update-type: "version-update:semver-major"
+      - dependency-name: "statrs"
+        update-type: "version-update:semver-major"
+      - dependency-name: "automerge"
+        update-type: "version-update:semver-major"
+      - dependency-name: "git2"
+        update-type: "version-update:semver-major"
+      - dependency-name: "opa-wasm"
+        update-type: "version-update:semver-major"
+
+  # Nix dependencies (flake inputs)
+  - package-ecosystem: "nix"
+    directory: "/nix"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "nix"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"

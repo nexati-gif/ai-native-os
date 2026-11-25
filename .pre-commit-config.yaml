@@ -1,0 +1,138 @@
+# Pre-commit hooks for AI-Native OS Orchestrator
+# Install with: pip install pre-commit && pre-commit install
+
+repos:
+  # Rust formatting
+  - repo: https://github.com/rust-lang/rustfmt
+    rev: stable
+    hooks:
+      - id: rustfmt
+        name: rustfmt
+        entry: rustfmt
+        language: system
+        types: [rust]
+        args: ["--check"]
+
+  # Rust linting
+  - repo: https://github.com/rust-lang/rust-clippy
+    rev: stable
+    hooks:
+      - id: clippy
+        name: clippy
+        entry: cargo clippy
+        language: system
+        types: [rust]
+        args: ["--workspace", "--locked", "--", "-D", "warnings"]
+        pass_filenames: false
+
+  # Cargo audit
+  - repo: https://github.com/rust-secure-code/cargo-audit
+    rev: v0.20.0
+    hooks:
+      - id: cargo-audit
+        name: cargo-audit
+        entry: cargo audit
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+  # Nix formatting
+  - repo: https://github.com/nix-community/nixpkgs-fmt
+    rev: v0.6.0
+    hooks:
+      - id: nixpkgs-fmt
+        name: nixpkgs-fmt
+        entry: nixpkgs-fmt
+        language: system
+        types: [nix]
+
+  # TOML formatting
+  - repo: https://github.com/taplo-cli/taplo
+    rev: 0.8.1
+    hooks:
+      - id: taplo
+        name: taplo
+        entry: taplo fmt
+        language: system
+        types: [toml]
+
+  # Markdown linting
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.12.0
+    hooks:
+      - id: markdownlint
+        name: markdownlint
+        entry: markdownlint
+        language: node
+        types: [markdown]
+        args: ["--config", ".markdownlint.json"]
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        name: yamllint
+        entry: yamllint
+        language: python
+        types: [yaml]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: python
+        types: [shell]
+
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: trailing-whitespace
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+      - id: check-yaml
+        name: check-yaml
+      - id: check-toml
+        name: check-toml
+      - id: check-json
+        name: check-json
+      - id: check-merge-conflict
+        name: check-merge-conflict
+      - id: check-added-large-files
+        name: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: detect-private-key
+        name: detect-private-key
+      - id: fix-byte-order-marker
+        name: fix-byte-order-marker
+      - id: mixed-line-ending
+        name: mixed-line-ending
+        args: ["--fix=lf"]
+
+  # Commit message linting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        name: commitizen
+        entry: cz check
+        language: python
+        types: [commit-msg]
+        args: ["--config", "pyproject.toml"]
+
+  # Cargo deny
+  - repo: https://github.com/EmbarkStudios/cargo-deny
+    rev: 0.14.7
+    hooks:
+      - id: cargo-deny
+        name: cargo-deny
+        entry: cargo deny
+        language: system
+        types: [rust]
+        args: ["check", "advisories", "licenses", "bans", "sources"]
+        pass_filenames: false
