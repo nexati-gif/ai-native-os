@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy workspace files
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 COPY crates/common ./crates/common
 COPY crates/orchestrator-core ./crates/orchestrator-core
 COPY crates/orchestrator-observe ./crates/orchestrator-observe

@@ -2,7 +2,7 @@
   description = "AI-Native OS - Self-modifying, federated, minimal";
   
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     # Optional private flake for secrets and host-specific configs
     # private = {
@@ -51,7 +51,7 @@
             clang
             lld
             bpftool
-            llvmPackages_17
+            llvmPackages_18
             nix
             firecracker
             qemu_kvm

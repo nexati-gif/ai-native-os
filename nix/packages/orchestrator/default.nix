@@ -2,9 +2,6 @@
 let
   # Rust toolchain
   rustToolchain = pkgs.rust-bin.stable.latest.default;
-  
-  # Cargo environment
-  cargoEnv = pkgs.rust-bin.stable.latest.default;
 in
 pkgs.stdenv.mkDerivation {
   name = "orchestrator";
@@ -12,17 +9,17 @@ pkgs.stdenv.mkDerivation {
   
   # Use the workspace root as source
   src = pkgs.lib.cleanSourceWith {
-    src = ../..;
+    src = ./.;
     filter = path: type:
-      ! (path == ".git" || path == "target" || path == "Cargo.lock" || path == ".direnv");
-  } ../..;
+      ! (path == ".git" || path == "target" || path == ".direnv");
+  } ./.;
   
   nativeBuildInputs = [
     rustToolchain
     pkgs.cargo
     pkgs.pkg-config
     pkgs.clang
-    pkgs.llvmPackages_17
+    pkgs.llvmPackages_18
     pkgs.openssl
     pkgs.libgit2
     pkgs.protobuf
@@ -57,11 +54,11 @@ pkgs.stdenv.mkDerivation {
     
     # Install config example
     mkdir -p $out/share/orchestrator
-    cp ../config.example.toml $out/share/orchestrator/ 2>/dev/null || true
+    cp config.example.toml $out/share/orchestrator/ 2>/dev/null || true
     
     # Install policies
     mkdir -p $out/share/orchestrator/policies
-    cp -r ../nix/modules/orchestrator.nix $out/share/orchestrator/policies/ 2>/dev/null || true
+    cp -r nix/modules/orchestrator.nix $out/share/orchestrator/policies/ 2>/dev/null || true
   '';
   
   # Check phase (run only unit tests, skip integration)

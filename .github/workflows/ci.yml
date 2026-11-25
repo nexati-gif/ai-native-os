@@ -61,14 +61,6 @@ jobs:
             libgit2-dev \
             protobuf-compiler \
             cmake \
-            qemu-system-x86 \
-            qemu-kvm \
-            libvirt-daemon-system \
-            libvirt-clients \
-            bridge-utils \
-            virtinst \
-            python3-pytest \
-            python3-hypothesis \
             libelf-dev
 
       - name: Format check
